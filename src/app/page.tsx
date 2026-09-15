@@ -58,6 +58,13 @@ export default function Home() {
     ? liveEvents 
     : liveEvents.filter(e => e.source === filter);
 
+  // Sort events chronologically based on our new isoDate field
+  const sortedEvents = [...filteredEvents].sort((a, b) => {
+    return new Date(a.isoDate).getTime() - new Date(b.isoDate).getTime();
+  });
+
+  const [isListOpen, setIsListOpen] = useState(false);
+
   return (
     <main className="flex h-screen w-screen bg-black overflow-hidden font-mono text-cyan-50">
       
@@ -99,24 +106,78 @@ export default function Home() {
           </div>
         </div>
 
-        {/* FILTERS OVERLAY */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex gap-2 overflow-x-auto max-w-full px-4 pb-2 scrollbar-hide">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm uppercase tracking-wider transition-all duration-300 border backdrop-blur-md
-                ${filter === cat 
-                  ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.4)]' 
-                  : 'bg-black/40 border-gray-800 text-gray-400 hover:border-cyan-900 hover:text-cyan-500'}`}
-            >
-              {cat}
-            </button>
-          ))}
+        {/* FILTERS & LIST TOGGLE OVERLAY */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex gap-4 items-center">
+          <button
+            onClick={() => setIsListOpen(!isListOpen)}
+            className={`px-6 py-2 rounded-full text-sm uppercase tracking-wider font-bold transition-all duration-300 shadow-[0_0_15px_rgba(34,211,238,0.3)]
+              ${isListOpen ? 'bg-cyan-500 text-black shadow-[0_0_20px_rgba(34,211,238,0.6)]' : 'bg-black/60 border border-cyan-500 text-cyan-400 hover:bg-cyan-900/50'}
+            `}
+          >
+            {isListOpen ? 'Close Timeline' : 'View Timeline'}
+          </button>
+          
+          <div className="flex gap-2 overflow-x-auto max-w-full px-4 pb-2 scrollbar-hide border-l border-cyan-900/50 pl-4">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`px-4 py-2 rounded-full whitespace-nowrap text-sm uppercase tracking-wider transition-all duration-300 border backdrop-blur-md
+                  ${filter === cat 
+                    ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.4)]' 
+                    : 'bg-black/40 border-gray-800 text-gray-400 hover:border-cyan-900 hover:text-cyan-500'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Sidebar Overlay */}
+      {/* CHRONOLOGICAL TIMELINE SIDEBAR */}
+      <AnimatePresence>
+        {isListOpen && (
+          <motion.div
+            initial={{ x: '-100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '-100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="absolute top-0 left-0 w-96 h-full bg-black/80 backdrop-blur-xl border-r border-cyan-900/50 p-6 overflow-y-auto z-20 flex flex-col pt-32"
+          >
+            <h2 className="text-xl font-bold text-cyan-400 mb-6 tracking-widest border-b border-cyan-900/50 pb-4">
+              DATA STREAM // CHRONOLOGICAL
+            </h2>
+            <div className="space-y-4">
+              {sortedEvents.map((event, idx) => {
+                const auraColor = 
+                  event.source === 'Ticketmaster' ? 'text-[#b026ff] border-[#b026ff]' :
+                  event.source === 'Posh' ? 'text-[#ff2a85] border-[#ff2a85]' :
+                  event.source === 'PR' ? 'text-[#22d3ee] border-[#22d3ee]' :
+                  'text-[#39ff14] border-[#39ff14]';
+
+                return (
+                  <div 
+                    key={`${event.id}-${idx}`}
+                    onClick={() => setSelectedEvent(event)}
+                    className="p-4 bg-cyan-950/20 border border-cyan-900/30 hover:border-cyan-500/50 rounded cursor-pointer transition-all hover:bg-cyan-900/30"
+                  >
+                    <div className={`text-xs font-mono tracking-widest mb-1 uppercase ${auraColor.split(' ')[0]}`}>
+                      {event.source}
+                    </div>
+                    <h3 className="font-bold text-gray-200 truncate">{event.title}</h3>
+                    <div className="flex items-center gap-2 text-cyan-500 text-xs mt-2">
+                      <Clock size={12} />
+                      <span className="truncate">{new Date(event.isoDate).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* RIGHT SIDEBAR: EVENT DETAIL */}
       <AnimatePresence>
         {selectedEvent && (
           <motion.div
@@ -156,7 +217,7 @@ export default function Home() {
                 <h2 className="text-2xl font-bold text-white mb-2">{selectedEvent.title}</h2>
                 <div className="flex items-center gap-2 text-cyan-400/80 font-mono text-sm mb-4">
                   <Clock size={14} />
-                  <span>{selectedEvent.date}</span>
+                  <span>{new Date(selectedEvent.isoDate).toLocaleString(undefined, { weekday: 'short', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
                 </div>
                 <p className="text-gray-300 leading-relaxed text-sm">
                   {selectedEvent.description}

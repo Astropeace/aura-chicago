@@ -58,6 +58,7 @@ export async function GET() {
             latitude: 41.8756 + (Math.random() * 0.04 - 0.02),
             longitude: -87.6244 + (Math.random() * 0.04 - 0.02),
             date: 'Upcoming',
+            isoDate: new Date(Date.now() + 86400000 * (index + 1)).toISOString(), // Mock future dates
             imageUrl: imageUrl,
             source: 'Posh'
           });
@@ -77,6 +78,7 @@ export async function GET() {
         latitude: 41.88,
         longitude: -87.63,
         date: 'Friday, 11 PM',
+        isoDate: new Date(Date.now() + 86400000).toISOString(),
         imageUrl: 'https://images.unsplash.com/photo-1563841930606-67e2bce48b78',
         source: 'Posh'
       });

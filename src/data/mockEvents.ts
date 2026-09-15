@@ -5,6 +5,7 @@ export interface EventData {
   latitude: number;
   longitude: number;
   date: string;
+  isoDate: string; // Used for chronological sorting
   imageUrl: string;
   source: 'Ticketmaster' | 'Posh' | 'PR' | 'Tech';
 }
@@ -17,6 +18,7 @@ export const mockEvents: EventData[] = [
     latitude: 41.8827,
     longitude: -87.6233,
     date: 'Friday, 10 PM',
+    isoDate: new Date(Date.now() + 86400000 * 2).toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
     source: 'Ticketmaster',
   },
@@ -27,6 +29,7 @@ export const mockEvents: EventData[] = [
     latitude: 41.8902,
     longitude: -87.6241,
     date: 'Saturday, 7 PM',
+    isoDate: new Date(Date.now() + 86400000 * 3).toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800&auto=format&fit=crop',
     source: 'PR',
   },
@@ -37,6 +40,7 @@ export const mockEvents: EventData[] = [
     latitude: 41.8756,
     longitude: -87.6244,
     date: 'Saturday, 2 AM',
+    isoDate: new Date(Date.now() + 86400000 * 4).toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1563841930606-67e2bce48b78?q=80&w=800&auto=format&fit=crop',
     source: 'Posh',
   },
@@ -47,6 +51,7 @@ export const mockEvents: EventData[] = [
     latitude: 41.8844,
     longitude: -87.6322,
     date: 'Thursday, 6 PM',
+    isoDate: new Date(Date.now() + 86400000 * 1).toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop',
     source: 'Tech',
   }

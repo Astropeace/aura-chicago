@@ -9,8 +9,8 @@ export async function GET() {
   }
 
   try {
-    // Fetch upcoming events in Chicago
-    const res = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?city=Chicago&apikey=${TM_KEY}&size=30&sort=date,asc`);
+    // Fetch upcoming events in Chicago, pull 100 for better coverage
+    const res = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?city=Chicago&apikey=${TM_KEY}&size=100&sort=date,asc`);
     
     if (!res.ok) {
       throw new Error(`Ticketmaster API returned ${res.status}`);
@@ -24,6 +24,10 @@ export async function GET() {
       .filter((e: any) => e._embedded?.venues?.[0]?.location) // Only events with coords
       .map((e: any) => {
         const venue = e._embedded.venues[0];
+        
+        // Extract a clean ISO date or construct one
+        const rawDate = e.dates.start.dateTime || `${e.dates.start.localDate}T${e.dates.start.localTime || '00:00:00'}Z`;
+
         return {
           id: e.id,
           title: e.name,
@@ -31,6 +35,7 @@ export async function GET() {
           latitude: parseFloat(venue.location.latitude),
           longitude: parseFloat(venue.location.longitude),
           date: `${e.dates.start.localDate} @ ${e.dates.start.localTime || 'TBA'}`,
+          isoDate: rawDate,
           imageUrl: e.images?.find((img: any) => img.ratio === '16_9')?.url || e.images?.[0]?.url || '',
           source: 'Ticketmaster'
         };
