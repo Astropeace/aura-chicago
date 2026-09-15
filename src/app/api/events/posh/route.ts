@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import { EventData } from '@/data/mockEvents';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const browser = await puppeteer.launch({ 

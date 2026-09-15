@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { EventData } from '@/data/mockEvents';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const TM_KEY = process.env.TM_CONSUMER_KEY;
   
